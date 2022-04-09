@@ -7,17 +7,37 @@ CLASS zcl_exercism_test DEFINITION
 
     INTERFACES if_oo_adt_classrun.
 
+    "! <p class="Reverse String" lang="en"></p>
+    "!
+    "! @parameter input | <p class="Input" lang="en"></p>
+    "! @parameter result | <p class="Reverse Input" lang="en"></p>
     METHODS reverse_string
       IMPORTING
         input         TYPE string
       RETURNING
         VALUE(result) TYPE string.
 
+    "! <p class="Scrabble Score" lang="en"></p>
+    "!
+    "! @parameter input | <p class="Input" lang="en"></p>
+    "! @parameter result | <p class="Output based on input score" lang="en"></p>
     METHODS score
       IMPORTING
         input         TYPE string OPTIONAL
       RETURNING
         VALUE(result) TYPE i.
+
+    TYPES integertab TYPE STANDARD TABLE OF i WITH EMPTY KEY.
+
+    "! <p class="shorttext synchronized" lang="en"></p>
+    "!
+    "! @parameter input | <p class="shorttext synchronized" lang="en"></p>
+    "! @parameter result | <p class="shorttext synchronized" lang="en"></p>
+    METHODS factors
+      IMPORTING
+        input         TYPE int8
+      RETURNING
+        VALUE(result) TYPE integertab.
 
 ENDCLASS.
 
@@ -26,7 +46,13 @@ CLASS zcl_exercism_test IMPLEMENTATION.
 
   METHOD if_oo_adt_classrun~main.
 
-    out->write( me->score( input = 'cabbage' ) ).
+    DATA(lt_factors) = me->factors( input = 60 ) .
+
+    LOOP AT lt_factors INTO DATA(ls_factor).
+
+      out->write( ls_factor ).
+
+    ENDLOOP.
 
   ENDMETHOD.
 
@@ -130,6 +156,37 @@ CLASS zcl_exercism_test IMPLEMENTATION.
     ENDLOOP.
 
     ENDDO.
+
+  ENDMETHOD.
+
+  METHOD factors.
+
+    DATA lv_div TYPE i VALUE 1.
+
+    DATA lv_number TYPE i.
+
+    DATA ls_factor LIKE LINE OF result.
+
+
+    lv_number = input.
+
+    WHILE lv_number <> lv_div.
+
+      lv_div = lv_div + 1.
+
+      IF lv_number MOD lv_div = 0.
+
+        lv_number = lv_number / lv_div.
+
+        ls_factor = lv_div.
+
+        APPEND ls_factor TO result.
+
+        lv_div = 1.
+
+      ENDIF.
+
+    ENDWHILE.
 
   ENDMETHOD.
 
