@@ -29,10 +29,10 @@ CLASS zcl_exercism_test DEFINITION
 
     TYPES integertab TYPE STANDARD TABLE OF i WITH EMPTY KEY.
 
-    "! <p class="shorttext synchronized" lang="en"></p>
+    "! <p class="Prime Factors" lang="en"></p>
     "!
-    "! @parameter input | <p class="shorttext synchronized" lang="en"></p>
-    "! @parameter result | <p class="shorttext synchronized" lang="en"></p>
+    "! @parameter input | <p class="Natural Number" lang="en"></p>
+    "! @parameter result | <p class="Prime factors of the input" lang="en"></p>
     METHODS factors
       IMPORTING
         input         TYPE int8
