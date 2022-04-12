@@ -7,20 +7,20 @@ CLASS zcl_exercism_test DEFINITION
 
     INTERFACES if_oo_adt_classrun.
 
-    "! <p class="Reverse String" lang="en"></p>
+    "! <p class="shorttext synchronized">Reverse String</p>
     "!
-    "! @parameter input | <p class="Input" lang="en"></p>
-    "! @parameter result | <p class="Reverse Input" lang="en"></p>
+    "! @parameter input | <p class="shorttext synchronized">Input</p>
+    "! @parameter result | <p class="shorttext synchronized">Reverse Input</p>
     METHODS reverse_string
       IMPORTING
         input         TYPE string
       RETURNING
         VALUE(result) TYPE string.
 
-    "! <p class="Scrabble Score" lang="en"></p>
+    "! <p class="shorttext synchronized">Scrabble Score</p>
     "!
-    "! @parameter input | <p class="Input" lang="en"></p>
-    "! @parameter result | <p class="Output based on input score" lang="en"></p>
+    "! @parameter input | <p class="shorttext synchronized">Input</p>
+    "! @parameter result | <p class="shorttext synchronized">Output based on input score</p>
     METHODS score
       IMPORTING
         input         TYPE string OPTIONAL
@@ -29,15 +29,27 @@ CLASS zcl_exercism_test DEFINITION
 
     TYPES integertab TYPE STANDARD TABLE OF i WITH EMPTY KEY.
 
-    "! <p class="Prime Factors" lang="en"></p>
+    "! <p class="shorttext synchronized">Prime Factors</p>
     "!
-    "! @parameter input | <p class="Natural Number" lang="en"></p>
-    "! @parameter result | <p class="Prime factors of the input" lang="en"></p>
+    "! @parameter input | <p class="shorttext synchronized">Natural Number</p>
+    "! @parameter result | <p class="shorttext synchronized">Prime factors of the input</p>
     METHODS factors
       IMPORTING
         input         TYPE int8
       RETURNING
         VALUE(result) TYPE integertab.
+
+    "! <p class="Beer Song"></p>
+    "!
+    "! @parameter initial_bottles_count | <p class="shorttext synchronized">Initial Bottles</p>
+    "! @parameter take_down_count | <p class="shorttext synchronized">End of bottles</p>
+    "! @parameter result | <p class="shorttext synchronized">Final beer Song</p>
+    METHODS recite
+      IMPORTING
+        !initial_bottles_count TYPE i
+        !take_down_count       TYPE i
+      RETURNING
+        VALUE(result)          TYPE string_table.
 
 ENDCLASS.
 
@@ -46,11 +58,14 @@ CLASS zcl_exercism_test IMPLEMENTATION.
 
   METHOD if_oo_adt_classrun~main.
 
-    DATA(lt_factors) = me->factors( input = 60 ) .
+    DATA(lt_recite) = me->recite(
+                         initial_bottles_count = 2
+                         take_down_count       = 3
+                       ).
 
-    LOOP AT lt_factors INTO DATA(ls_factor).
+    LOOP AT lt_recite INTO DATA(ls_recite).
 
-      out->write( ls_factor ).
+      out->write( ls_recite ).
 
     ENDLOOP.
 
@@ -82,8 +97,8 @@ CLASS zcl_exercism_test IMPLEMENTATION.
 
     TYPES: BEGIN OF ty_scores,
 
-           letters TYPE c LENGTH 50,
-           value TYPE i,
+             letters TYPE c LENGTH 50,
+             value   TYPE i,
 
            END OF ty_scores.
 
@@ -143,17 +158,17 @@ CLASS zcl_exercism_test IMPLEMENTATION.
 
       lv_word = to_upper( input+lv_len(1) ).
 
-    LOOP AT lt_data INTO ls_data.
+      LOOP AT lt_data INTO ls_data.
 
-      IF ls_data-letters CA lv_word .
+        IF ls_data-letters CA lv_word .
 
-        result = result + ls_data-value.
+          result = result + ls_data-value.
 
-        EXIT.
+          EXIT.
 
-      ENDIF.
+        ENDIF.
 
-    ENDLOOP.
+      ENDLOOP.
 
     ENDDO.
 
@@ -187,6 +202,132 @@ CLASS zcl_exercism_test IMPLEMENTATION.
       ENDIF.
 
     ENDWHILE.
+
+  ENDMETHOD.
+
+  METHOD recite.
+
+    DATA lv_inittial_bottles_count LIKE initial_bottles_count.
+
+    DATA lv_inittial_bottles_char TYPE c LENGTH 20.
+
+    DATA lv_take_down_char TYPE c LENGTH 20.
+
+    DATA lv_take_down_count LIKE take_down_count.
+
+    DATA lv_beg1 LIKE LINE OF result VALUE '& # of beer on the wall, & # of beer.'.
+
+    DATA lv_beg2 LIKE LINE OF result VALUE 'Take one down and pass it around, & # of beer on the wall.'.
+
+    DATA lv_plural_or_singular TYPE c LENGTH 7.
+
+    CONSTANTS lc_fin1 LIKE LINE OF result VALUE 'No more bottles of beer on the wall, no more bottles of beer.'.
+
+    CONSTANTS lc_fin1_2 LIKE LINE OF result VALUE 'Take it down and pass it around, no more bottles of beer on the wall.'.
+
+    CONSTANTS lc_initial LIKE LINE OF result VALUE IS INITIAL.
+
+    DATA lc_fin2 LIKE LINE OF result VALUE 'Go to the store and buy some more, 99 bottles of beer on the wall.'.
+
+
+    lv_inittial_bottles_count = initial_bottles_count.
+
+    lv_take_down_count = take_down_count.
+
+    DO take_down_count TIMES.
+
+      IF sy-index > 1.
+
+        APPEND lc_initial TO result.
+
+      ENDIF.
+
+      IF lv_inittial_bottles_count > 1.
+
+        lv_plural_or_singular = 'bottles'.
+
+      ELSE.
+
+        lv_plural_or_singular = 'bottle'.
+
+      ENDIF.
+
+      CASE lv_inittial_bottles_count.
+
+        WHEN 0.
+
+          APPEND lc_fin1 TO result.
+
+          lv_inittial_bottles_char  = initial_bottles_count.
+
+          CONDENSE lv_inittial_bottles_char.
+
+          REPLACE ALL OCCURRENCES OF '&' IN lc_fin2 WITH lv_inittial_bottles_char.
+
+          REPLACE ALL OCCURRENCES OF '#' IN lc_fin2 WITH lv_plural_or_singular.
+
+          APPEND lc_fin2 TO result.
+
+          EXIT.
+
+        WHEN 1.
+
+          lv_inittial_bottles_char = lv_inittial_bottles_count.
+
+          CONDENSE lv_inittial_bottles_char.
+
+          REPLACE ALL OCCURRENCES OF '&' IN lv_beg1 WITH lv_inittial_bottles_char.
+
+          REPLACE ALL OCCURRENCES OF '#' IN lv_beg1 WITH lv_plural_or_singular.
+
+          APPEND lv_beg1 TO result.
+
+          APPEND lc_fin1_2 TO result.
+
+          lv_inittial_bottles_count = lv_inittial_bottles_count - 1.
+
+        WHEN OTHERS.
+
+          lv_inittial_bottles_char = lv_inittial_bottles_count.
+
+          CONDENSE lv_inittial_bottles_char.
+
+          DATA(lv_beg1_aux) = lv_beg1.
+
+          REPLACE ALL OCCURRENCES OF '&' IN lv_beg1_aux WITH lv_inittial_bottles_char .
+
+          REPLACE ALL OCCURRENCES OF '#' IN lv_beg1_aux WITH lv_plural_or_singular .
+
+          APPEND lv_beg1_aux TO result.
+
+
+          lv_inittial_bottles_count = lv_inittial_bottles_count - 1.
+
+          IF lv_inittial_bottles_count > 1.
+
+            lv_plural_or_singular = 'bottles'.
+
+          ELSE.
+
+            lv_plural_or_singular = 'bottle'.
+
+          ENDIF.
+
+          lv_inittial_bottles_char = lv_inittial_bottles_count.
+
+          CONDENSE lv_inittial_bottles_char.
+
+          DATA(lv_beg2_aux) = lv_beg2.
+
+          REPLACE ALL OCCURRENCES OF '&' IN lv_beg2_aux WITH lv_inittial_bottles_char .
+
+          REPLACE ALL OCCURRENCES OF '#' IN lv_beg2_aux WITH lv_plural_or_singular .
+
+          APPEND lv_beg2_aux TO result.
+
+      ENDCASE.
+
+     ENDDO.
 
   ENDMETHOD.
 
