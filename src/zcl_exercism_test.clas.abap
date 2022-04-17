@@ -39,7 +39,7 @@ CLASS zcl_exercism_test DEFINITION
       RETURNING
         VALUE(result) TYPE integertab.
 
-    "! <p class="Beer Song"></p>
+    "! <p class="shorttext synchronized">Beer Song</p>
     "!
     "! @parameter initial_bottles_count | <p class="shorttext synchronized">Initial Bottles</p>
     "! @parameter take_down_count | <p class="shorttext synchronized">End of bottles</p>
@@ -51,6 +51,28 @@ CLASS zcl_exercism_test DEFINITION
       RETURNING
         VALUE(result)          TYPE string_table.
 
+
+    "! <p class="shorttext synchronized" lang="en">Two Fer</p>
+    "!
+    "! @parameter input | <p class="shorttext synchronized" lang="en">Name</p>
+    "! @parameter result | <p class="shorttext synchronized" lang="en">Text</p>
+    METHODS two_fer
+      IMPORTING
+        input         TYPE string OPTIONAL
+      RETURNING
+        VALUE(result) TYPE string.
+
+
+    "! <p class="shorttext synchronized" lang="en">Resistor Color</p>
+    "!
+    "! @parameter color_code | <p class="shorttext synchronized" lang="en">Color</p>
+    "! @parameter value | <p class="shorttext synchronized" lang="en">Value</p>
+    METHODS resistor_color
+      IMPORTING
+        color_code   TYPE string
+      RETURNING
+        VALUE(value) TYPE i.
+
 ENDCLASS.
 
 
@@ -58,16 +80,7 @@ CLASS zcl_exercism_test IMPLEMENTATION.
 
   METHOD if_oo_adt_classrun~main.
 
-    DATA(lt_recite) = me->recite(
-                         initial_bottles_count = 2
-                         take_down_count       = 3
-                       ).
-
-    LOOP AT lt_recite INTO DATA(ls_recite).
-
-      out->write( ls_recite ).
-
-    ENDLOOP.
+    "Example: out->write...
 
   ENDMETHOD.
 
@@ -327,7 +340,86 @@ CLASS zcl_exercism_test IMPLEMENTATION.
 
       ENDCASE.
 
-     ENDDO.
+    ENDDO.
+
+  ENDMETHOD.
+
+  METHOD two_fer.
+
+    IF input IS INITIAL.
+
+      result = |One for you, one for me.|.
+
+    ELSE.
+
+      result = |One for { input }, one for me.|.
+
+    ENDIF.
+
+  ENDMETHOD.
+
+  METHOD resistor_color.
+
+    TYPES: BEGIN OF ty_colors_data,
+
+             color TYPE string,
+             value TYPE i,
+
+           END OF ty_colors_data.
+
+    DATA lt_colors TYPE STANDARD TABLE OF ty_colors_data
+      WITH KEY color.
+
+    DATA ls_color LIKE LINE OF lt_colors.
+
+    "Fill colors database
+    ls_color-color = 'BLACK'.
+    ls_color-value = 0.
+    APPEND ls_color TO lt_colors.
+
+    ls_color-color = 'BROWN'.
+    ls_color-value = 1.
+    APPEND ls_color TO lt_colors.
+
+    ls_color-color = 'RED'.
+    ls_color-value = 2.
+    APPEND ls_color TO lt_colors.
+
+    ls_color-color = 'ORANGE'.
+    ls_color-value = 3.
+    APPEND ls_color TO lt_colors.
+
+    ls_color-color = 'YELLOW'.
+    ls_color-value = 4.
+    APPEND ls_color TO lt_colors.
+
+    ls_color-color = 'GREEN'.
+    ls_color-value = 5.
+    APPEND ls_color TO lt_colors.
+
+    ls_color-color = 'BLUE'.
+    ls_color-value = 6.
+    APPEND ls_color TO lt_colors.
+
+    ls_color-color = 'VIOLET'.
+    ls_color-value = 7.
+    APPEND ls_color TO lt_colors.
+
+    ls_color-color = 'GREY'.
+    ls_color-value = 8.
+    APPEND ls_color TO lt_colors.
+
+    ls_color-color = 'WHITE'.
+    ls_color-value = 9.
+    APPEND ls_color TO lt_colors.
+
+
+    "Find color value
+    CLEAR ls_color.
+    READ TABLE lt_colors INTO ls_color
+      WITH KEY color = to_upper( color_code ).
+
+    value = ls_color-value.
 
   ENDMETHOD.
 
