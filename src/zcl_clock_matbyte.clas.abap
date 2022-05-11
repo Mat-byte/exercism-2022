@@ -28,7 +28,7 @@ CLASS zcl_clock_matbyte DEFINITION
 
   PRIVATE SECTION.
 
-    DATA gv_time TYPE t.
+    DATA gv_clock TYPE t.
 
 ENDCLASS.
 
@@ -38,35 +38,30 @@ CLASS zcl_clock_matbyte IMPLEMENTATION.
 
   METHOD add.
 
-    DATA(lv_min_to_sec) = minutes * 60.
-
-    me->gv_time = me->gv_time + lv_min_to_sec.
-
-  ENDMETHOD.
-
-  METHOD get.
-
-    result = |{ me->gv_time+0(2) }:{ me->gv_time+2(2) }|.
-
-  ENDMETHOD.
-
-  METHOD sub.
-
-    DATA(lv_min_to_sec) = minutes * 60.
-
-    me->gv_time = me->gv_time - lv_min_to_sec.
+    gv_clock = gv_clock + minutes * 60.
 
   ENDMETHOD.
 
   METHOD constructor.
 
-    TYPES ty_numc TYPE n LENGTH 2.
+    " Clock is number of seconds
+    gv_clock = hours * 60 * 60 + minutes * 60.
 
-    DATA(lv_hours) = CONV ty_numc( hours ).
+  ENDMETHOD.
 
-    DATA(lv_minutes) = CONV ty_numc( minutes ).
+  METHOD get.
 
-    me->gv_time = |{ lv_hours }{ lv_minutes }00|.
+    " hh:mm:ss
+    result = |{ gv_clock TIME = ISO }|.
+
+    " return only hh:mm
+    result = result(5).
+
+  ENDMETHOD.
+
+  METHOD sub.
+
+    gv_clock = gv_clock - minutes * 60.
 
   ENDMETHOD.
 

@@ -5,6 +5,9 @@ CLASS zcl_rle_matbyte DEFINITION
 
   PUBLIC SECTION.
 
+
+    INTERFACES if_oo_adt_classrun.
+
     TYPES: BEGIN OF ty_letters,
 
              letter   TYPE c LENGTH 1,
@@ -12,7 +15,7 @@ CLASS zcl_rle_matbyte DEFINITION
 
            END OF ty_letters.
 
-    METHODS encode IMPORTING input         TYPE string
+    METHODS encode IMPORTING VALUE(input)         TYPE string
                    RETURNING VALUE(result) TYPE string.
 
     METHODS decode IMPORTING input         TYPE string
@@ -21,6 +24,10 @@ CLASS zcl_rle_matbyte DEFINITION
   PROTECTED SECTION.
 
   PRIVATE SECTION.
+
+    DATA gt_letters TYPE STANDARD TABLE OF ty_letters.
+
+    CONSTANTS gc_abcde TYPE c LENGTH 55 VALUE 'ABCDEFGHIJKLMNÑOPQRSTUVWXYZabcdefghijklmnñopqrstuvwxyz'.
 
 ENDCLASS.
 
@@ -34,7 +41,7 @@ CLASS zcl_rle_matbyte IMPLEMENTATION.
 
     DATA lv_times TYPE i.
 
-    IF input CN '0123456789'.
+    IF input NA '0123456789'.
 
       result = input.
 
@@ -46,9 +53,9 @@ CLASS zcl_rle_matbyte IMPLEMENTATION.
 
       DATA(lv_character) = input+lv_indx(1).
 
-      IF lv_character CO '0123456789'.
+      IF lv_character CA '0123456789'.
 
-        lv_times = lv_character.
+        lv_times = |{ lv_times }{ lv_character }|.
 
       ELSEIF lv_times IS INITIAL.
 
@@ -74,62 +81,89 @@ CLASS zcl_rle_matbyte IMPLEMENTATION.
 
   METHOD encode.
 
-    DATA lt_letters TYPE STANDARD TABLE OF me->ty_letters.
+*    TYPES ty_char30 TYPE c LENGTH 30.
+*
+*    DATA lt_letters TYPE STANDARD TABLE OF ty_letters.
+*
+*    DATA ls_letter LIKE LINE OF lt_letters.
+*
+*    DATA lv_indx TYPE i.
+*
+*    DATA lv_count TYPE i.
+*
+*    DATA lv_char TYPE c LENGTH 1.
+*
+*    IF input IS INITIAL.
+*
+*      RETURN.
+*
+*    ENDIF.
+*
+*    REPLACE ALL OCCURRENCES OF space IN input WITH '&'.
+*
+*    lv_char = input+0(1).
+*
+*    DO strlen( input ) TIMES.
+*
+*      IF input+lv_indx(1) = lv_char.
+*
+*        lv_count = lv_count + 1.
+*
+*      ELSE.
+*
+*        ls_letter-letter = lv_char.
+*
+*        ls_letter-quantity = lv_count.
+*
+*        APPEND ls_letter TO lt_letters.
+*
+*        lv_char = input+lv_indx(1).
+*
+*        lv_count = 1.
+*
+*      ENDIF.
+*
+*      lv_indx = lv_indx + 1.
+*
+*    ENDDO.
+*
+*    ls_letter-letter = lv_char.
+*
+*    ls_letter-quantity = lv_count.
+*
+*    APPEND ls_letter TO lt_letters.
+*
+*
+*    LOOP AT lt_letters INTO ls_letter.
+*
+*      DATA(lv_value) = COND ty_char30(
+*            WHEN ls_letter-quantity = 1
+*                THEN ''
+*            ELSE ls_letter-quantity ).
+*
+*      result = |{ result }{ lv_value }{ ls_letter-letter }|.
+*
+*    ENDLOOP.
+*
+*    REPLACE ALL OCCURRENCES OF '&' IN result WITH space .
+*
+*    gt_letters = lt_letters.
 
-    DATA ls_letter LIKE LINE OF lt_letters.
+  ENDMETHOD.
 
-    DATA lv_indx TYPE i.
+  METHOD if_oo_adt_classrun~main.
 
-    DATA lv_count TYPE i.
+    DATA(lv_string) = me->decode( input = '12WB12W3B24WB' ).
+*
+    out->write( lv_string ).
 
-    DATA lv_char TYPE c LENGTH 1.
-
-    IF input IS INITIAL.
-
-      RETURN.
-
-    ENDIF.
-
-    lv_char = input+0(1).
-
-    DO strlen( input ) TIMES.
-
-      IF input+lv_indx(1) = lv_char.
-
-        lv_count = lv_count + 1.
-
-      ELSE.
-
-        ls_letter-letter = lv_char.
-
-        ls_letter-quantity = lv_count.
-
-        APPEND ls_letter TO lt_letters.
-
-        lv_char = input+lv_indx(1).
-
-        lv_count = 1.
-
-      ENDIF.
-
-      lv_indx = lv_indx + 1.
-
-    ENDDO.
-
-    ls_letter-letter = lv_char.
-
-    ls_letter-quantity = lv_count.
-
-    APPEND ls_letter TO lt_letters.
-
-
-    LOOP AT lt_letters INTO ls_letter.
-
-      result = |{ result }{ ls_letter-quantity }{ ls_letter-letter }|.
-
-    ENDLOOP.
-
-    REPLACE ALL OCCURRENCES OF '1' IN result WITH ''.
+*     LOOP AT gt_letters INTO DATA(ls_let).
+*
+*      out->write( |{ ls_let-letter }-{ ls_let-quantity }| ).
+*
+*     ENDLOOP.
+**
+*     out->write( lines( gt_letters ) ).
 
   ENDMETHOD.
 
